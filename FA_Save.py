@@ -22,7 +22,7 @@ def load_saved_entries():
     if not os.path.exists(save_path):
         return
 
-    with open(save_path) as json_file:
+    with open(save_path, 'r') as json_file:
         out_array = []
         data = json.load(json_file)
         for item in data.items():

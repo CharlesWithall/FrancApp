@@ -121,9 +121,4 @@ class MainWindow:
     def generate_wordsearch(self):
         self.wordsearch_window.launch(self)
 
-
 # endregion
-
-window_root = Tk()
-main = MainWindow(window_root)
-window_root.mainloop()
