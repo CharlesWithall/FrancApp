@@ -22,7 +22,7 @@ class MainWindow:
         self.main_window = root
         self.translator = Translator()
         self.saved_translations = load_saved_entries()
-        self.wordsearch_window = Wordsearch_Window()
+        self.wordsearch_window = None
 
         root.title("FrancApp - Come up with a better name")
         root.iconbitmap("french_flag.ico")
@@ -119,6 +119,6 @@ class MainWindow:
         save_new_entry(entry)
 
     def generate_wordsearch(self):
-        self.wordsearch_window.launch(self)
+        self.wordsearch_window = Wordsearch_Window(self)
 
 # endregion

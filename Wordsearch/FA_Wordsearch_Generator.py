@@ -2,9 +2,33 @@ from Wordsearch.FA_Wordsearch_Letter_Frequency import LetterFrequencies
 import Wordsearch.FA_Wordsearch_Grid_Navigation as GridNavigator
 from Wordsearch.FA_Wordsearch_Grid_Navigation import WordDirection
 
+from Wordsearch.FA_Wordsearch_Defines import IS_CHEAT_MODE
+
 import random
 
-class FA_WordsearchGenerator:
+class LetterEntry:
+    def __init__(self, char=None, x=None, y=None):
+        self.letter = char
+        self.x = x
+        self.y = y
+
+class WordsearchEntry:
+    def __init__(self, en, fr, letter_entries=[]):
+        self.english = en
+        self.french = fr
+        self.letter_entries = letter_entries
+        self.is_complete = False
+
+    def add_letter(self, character, x, y):
+        self.letter_entries.append(LetterEntry(character, x, y))
+
+    def get_start_point(self):
+        return self.letter_entries[0]
+
+    def get_end_point(self):
+        return self.letter_entries[-1]
+
+class WordsearchGenerator:
     def __init__(self):
         # a lot of this stuff should be read in by the constructor and in the generate function
         self.grid_size = 0
@@ -16,23 +40,25 @@ class FA_WordsearchGenerator:
         for line in self.letter_grid:
             print(str(line).replace(",", "").replace("'", ""))
 
-    def generate(self, grid_size, word_list, number_of_words):
+    def generate(self, grid_size, translations, number_of_words):
         self.grid_size = grid_size
         self.letter_grid = [[0 for x in range(grid_size)] for y in range(grid_size)]
 
-        self.word_list = random.sample(word_list, number_of_words)
-        existing_words = []
-        for new_word in self.word_list:
-            new_word = new_word.upper().replace(" ", "")
-            new_word_length = len(new_word)
+        random_word_list = random.sample(translations, number_of_words)
+        entries = []
+        for new_word in random_word_list:
+            new_word_en = new_word.english.upper()
+            new_word_fr = new_word.french.upper().replace(" ", "")
+            new_word_length = len(new_word_fr)
             word_location_found = False
 
-            for existing_word in existing_words:
-                for letter_entry in existing_word:
-                    if letter_entry.letter in new_word:
-                        start, direction = self.try_fit_word_to_grid(letter_entry, new_word)
+            for existing_word in entries:
+                for letter_entry in existing_word.letter_entries:
+                    if letter_entry.letter in new_word_fr:
+                        start, direction = self.try_fit_word_to_grid(letter_entry, new_word_fr)
                         if start is not None and direction is not None:
-                            existing_words.append(self.add_word_to_grid(new_word, direction, start))
+                            new_entry = self.add_word_to_grid(new_word_fr, direction, start)
+                            entries.append(WordsearchEntry(new_word_en, new_word_fr, new_entry))
                             word_location_found = True
                             break
 
@@ -43,11 +69,13 @@ class FA_WordsearchGenerator:
                 random_direction = random.choice(list(WordDirection))
                 coordinates = GridNavigator.get_random_start_coordinate_for_word_length(random_direction, new_word_length, self.grid_size)
                 if self.verify_no_overlap(coordinates[0], coordinates[1], new_word_length, random_direction):
-                    existing_words.append(self.add_word_to_grid(new_word, random_direction, coordinates))
+                    new_entry = self.add_word_to_grid(new_word_fr, random_direction, coordinates)
+                    entries.append(WordsearchEntry(new_word_en, new_word_fr, new_entry))
                     word_location_found = True
 
         self.fill_grid_with_random_letters()
-        return self.letter_grid, self.word_list
+        entries.sort(key=lambda w: len(w.english))
+        return self.letter_grid, entries
 
     def verify_no_overlap(self, x, y, length, direction):
         for i in range(length):
@@ -94,7 +122,7 @@ class FA_WordsearchGenerator:
         y = coordinates[1]
         letters = []
         for letter in word:
-            letters.append(GridNavigator.LetterEntry(letter, x, y))
+            letters.append(LetterEntry(letter, x, y))
             self.letter_grid[x][y] = letter
             x, y = GridNavigator.get_next_coordinate_in_direction(direction, x, y)
 
@@ -105,3 +133,5 @@ class FA_WordsearchGenerator:
             for y in range(0, self.grid_size):
                 if self.letter_grid[x][y] == 0:
                     self.letter_grid[x][y] = self.letter_frequencies.get_letter(float(random.randint(0, 10000))/100)
+                    if IS_CHEAT_MODE:
+                        self.letter_grid[x][y] = '.'

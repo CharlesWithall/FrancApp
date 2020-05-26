@@ -11,12 +11,6 @@ class WordDirection(Enum):
     REVERSE_DIAGONAL_INCLINE = 6
     REVERSE_DIAGONAL_DECLINE = 7
 
-class LetterEntry:
-    def __init__(self, letter=None, x=None, y=None):
-        self.letter = letter
-        self.x = x
-        self.y = y
-
 def get_next_coordinate_in_direction(direction, x, y):
     if direction == WordDirection.HORIZONTAL:
         return x + 1, y

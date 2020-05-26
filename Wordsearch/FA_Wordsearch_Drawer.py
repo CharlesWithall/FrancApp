@@ -1,49 +1,55 @@
-import tkinter as tk
+from Wordsearch.FA_Wordsearch_Defines import letter_spacing
+
+def snap_to_grid(x, y):
+    return round(x / letter_spacing) * letter_spacing, round(y / letter_spacing) * letter_spacing
 
 class WordSearchDrawer:
-    def __init__(self, root):
-        self.canvas = tk.Canvas(root, width=400, height=400)
-        self.canvas.pack()
-        self.canvas.old_coords = None
-        root.bind('<Motion>', self.myfunction)
+    def __init__(self, root, entries):
+        self.root = root
+        self.entries = entries
+        self.source_coords = None
+        self.drawn_line = None
+        root.canvas_letter_grid.bind('<Motion>', self.draw_selection)
+        root.canvas_letter_grid.bind('<ButtonPress>', self.start_draw)
+        root.canvas_letter_grid.bind('<ButtonRelease>', self.stop_draw)
 
-    def myfunction(self, event):
-        x, y = event.x, event.y
-        if self.canvas.old_coords:
-            x1, y1 = self.canvas.old_coords
-            self.canvas.create_line(x, y, x1, y1)
-        self.canvas.old_coords = x, y
+    def start_draw(self, event):
+        self.source_coords = (snap_to_grid(event.x, event.y))
 
-# import tkinter as tk
-#
-# def draw(event):
-#     x, y = event.x, event.y
-#     if canvas.old_coords:
-#         x1, y1 = canvas.old_coords
-#         canvas.create_line(x, y, x1, y1)
-#     canvas.old_coords = x, y
-#
-# def draw_line(event):
-#
-#     if str(event.type) == 'ButtonPress':
-#         canvas.old_coords = event.x, event.y
-#
-#     elif str(event.type) == 'ButtonRelease':
-#         x, y = event.x, event.y
-#         x1, y1 = canvas.old_coords
-#         canvas.create_line(x, y, x1, y1)
-#
-# def reset_coords(event):
-#     canvas.old_coords = None
-#
-# root = tk.Tk()
-#
-# canvas = tk.Canvas(root, width=400, height=400)
-# canvas.pack()
-# canvas.old_coords = None
-#
-# root.bind('<ButtonPress-1>', draw_line)
-# root.bind('<ButtonRelease-1>', draw_line)
-#
-# #root.bind('<B1-Motion>', draw)
-# #root.bind('<ButtonRelease-1>', reset_coords)
+    def stop_draw(self, event):
+        if self.drawn_line:
+            self.root.canvas_letter_grid.delete(self.drawn_line)
+
+        mouse_pos = snap_to_grid(event.x, event.y)
+
+        for entry in self.entries:
+            endpoint_start = (entry.get_start_point().x * letter_spacing) + letter_spacing, (entry.get_start_point().y * letter_spacing) + letter_spacing
+            endpoint_end = (entry.get_end_point().x * letter_spacing) + letter_spacing, (entry.get_end_point().y * letter_spacing) + letter_spacing
+
+            selection_is_correct = False
+            if endpoint_start[0] == mouse_pos[0] and endpoint_start[1] == mouse_pos[1]:
+                if endpoint_end[0] == self.source_coords[0] and endpoint_end[1] == self.source_coords[1]:
+                    selection_is_correct = True
+
+            elif endpoint_end[0] == mouse_pos[0] and endpoint_end[1] == mouse_pos[1]:
+                if endpoint_start[0] == self.source_coords[0] and endpoint_start[1] == self.source_coords[1]:
+                    selection_is_correct = True
+
+            if selection_is_correct:
+                if not entry.is_complete:
+                    entry.is_complete = True
+                    all_complete = all([t.is_complete for t in self.entries])
+                    self.root.set_word_complete(entry.english, all_complete)
+                    self.root.canvas_letter_grid.create_line(endpoint_start[0], endpoint_start[1], endpoint_end[0],
+                                                             endpoint_end[1], fill="orange", width=10, stipple="gray50")
+                break
+
+        self.source_coords = None
+
+    def draw_selection(self, event):
+        if self.source_coords:
+            if self.drawn_line:
+                self.root.canvas_letter_grid.delete(self.drawn_line)
+            self.drawn_line = self.root.canvas_letter_grid.create_line(self.source_coords[0], self.source_coords[1],
+                                                                       event.x, event.y, fill="blue", width=10,
+                                                                       stipple="gray50")
