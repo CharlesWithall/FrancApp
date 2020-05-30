@@ -1,7 +1,9 @@
+from FA_LanguageSelect import get_active_language_string
+
 import json
 import os
 
-frequency_path = "Wordsearch/french_letter_frequencies.json"
+frequency_path = "Wordsearch/letter_frequencies.json"
 
 class LetterFrequencyDefinition:
     def __init__(self, letter, frequency, cumulative_frequency):
@@ -23,7 +25,7 @@ class LetterFrequencies:
             out_array = []
             data = json.load(json_file)
             frequency_cumulation = 0
-            for item in data.items():
+            for item in data[get_active_language_string()].items():
                 letter = item[0]
                 frequency = item[1]
                 frequency_cumulation += frequency

@@ -61,3 +61,6 @@ class Wordsearch_Window:
         else:
             sound_file = str.format('wordsearch/wordsearch_success_{0}.wav', (self.num_words_found - 1 % 5) + 1)
             PlaySound(sound_file, SND_FILENAME | SND_ASYNC)
+
+    # TODO: What if word is longer than the grid?!
+    # TODO: What if there aren't enough words?!

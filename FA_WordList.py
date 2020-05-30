@@ -9,7 +9,7 @@ class WordList:
         self.month = 0
         for item in saved_words:
             dt = datetime.strptime(item.datetime, '%d/%m/%Y')
-            self.append_item(item.english, item.french, dt)
+            self.append_item(item.english, item.foreign, dt)
 
     def append_item(self, en, fr, dt):
         self.textbox_wordlist.configure(state="normal")

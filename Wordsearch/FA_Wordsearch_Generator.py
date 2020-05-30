@@ -15,7 +15,7 @@ class LetterEntry:
 class WordsearchEntry:
     def __init__(self, en, fr, letter_entries=[]):
         self.english = en
-        self.french = fr
+        self.foreign = fr
         self.letter_entries = letter_entries
         self.is_complete = False
 
@@ -48,7 +48,7 @@ class WordsearchGenerator:
         entries = []
         for new_word in random_word_list:
             new_word_en = new_word.english.upper()
-            new_word_fr = new_word.french.upper().replace(" ", "")
+            new_word_fr = new_word.foreign.upper().replace(" ", "")
             new_word_length = len(new_word_fr)
             word_location_found = False
 
