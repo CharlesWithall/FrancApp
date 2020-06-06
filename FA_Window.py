@@ -1,13 +1,14 @@
 from FA_Accents import FA_Accents as Accents
 import FA_LanguageSelect as LanguageSelect
 from FA_LanguageSelect import Language
-from FA_Save import load_saved_entries
-from FA_Save import save_new_entry
+from FA_Save import load_saved_entries, save_new_entry, load_active_language
 from FA_Translation import Translation
 from FA_Translator import FA_Translator as Translator
 from FA_WordList import WordList
 
+from SimpleTest.FA_SimpleTest_Window import SimpleTest_Window
 from Wordsearch.FA_Wordsearch_Window import Wordsearch_Window
+from Wordsearch.FA_Wordsearch_Defines import number_of_words as num_wordsearch_words
 
 from tkinter import *
 
@@ -32,9 +33,13 @@ class MainWindow:
         # region HEADER
         self.main_window = root
         self.frame_main = Frame(root)
+
+        LanguageSelect.set_active_language(Language[load_active_language()])
+
         self.translator = Translator()
         self.saved_translations = load_saved_entries(LanguageSelect.get_active_language_string())
         self.wordsearch_window = None
+        self.simpletest_window = None
 
         self.set_header()
         # endregion
@@ -60,6 +65,7 @@ class MainWindow:
         self.button_save = Button(self.frame_control, text="Save", command=self.save, state=DISABLED)
         self.scale_direction = Scale(self.frame_control, from_=0, to=1, resolution=1, orient=HORIZONTAL, showvalue=0, command=self.set_direction)
         self.button_wordsearch = Button(self.frame_control, text="Word Search", command=self.generate_wordsearch)
+        self.button_simpletest = Button(self.frame_control, text="Quiz", command=self.generate_simpletest)
         language_names = LanguageSelect.get_languages_translated_list()
         self.optionmenu_changelanguage = OptionMenu(self.frame_control, self.string_language_selection, *language_names, command=self.change_language)
 
@@ -73,7 +79,8 @@ class MainWindow:
         self.button_translate.grid(row=2, column=0)
         self.button_save.grid(row=2, column=2)
         self.button_wordsearch.grid(row=3, column=2)
-        self.optionmenu_changelanguage.grid(row=4, column=2)
+        self.button_simpletest.grid(row=4, column=2)
+        self.optionmenu_changelanguage.grid(row=5, column=2)
         self.frame_control.grid(row=0, column=0, sticky="N")
         self.frame_main.pack()
 
@@ -137,6 +144,9 @@ class MainWindow:
 
     def generate_wordsearch(self):
         self.wordsearch_window = Wordsearch_Window(self)
+
+    def generate_simpletest(self):
+        self.simpletest_window = SimpleTest_Window(self)
 
     def change_language(self, translated_string):
         new_language = LanguageSelect.get_language_from_translated_string(translated_string)

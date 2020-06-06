@@ -18,10 +18,10 @@ def get_accents():
 
 class FA_Accents:
     def __init__(self, root):
-        self.button_frame = Frame(root.frame_control, padx=5, pady=5)
-        self.button_frame.grid(column=0, row=3, columnspan=2, sticky='W')
-        self.buttons_accents = []
         accents = get_accents()
+        self.button_frame = Frame(root.frame_control, padx=5, pady=5)
+        self.button_frame.grid(column=0, row=3, columnspan=2, rowspan=len(accents), sticky='W')
+        self.buttons_accents = []
         for i in range(len(accents)):
             for j in range(len(accents[i])):
                 self.buttons_accents.append(self.create_button(root, accents[i][j], j, i))

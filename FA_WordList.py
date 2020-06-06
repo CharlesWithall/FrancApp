@@ -10,6 +10,7 @@ class WordList:
         for item in saved_words:
             dt = datetime.strptime(item.datetime, '%d/%m/%Y')
             self.append_item(item.english, item.foreign, dt)
+        self.textbox_wordlist.yview_pickplace("end")
 
     def append_item(self, en, fr, dt):
         self.textbox_wordlist.configure(state="normal")
@@ -20,6 +21,7 @@ class WordList:
             self.textbox_wordlist.insert(index='end', chars="------------------------------------\n")
         self.textbox_wordlist.insert(index='end', chars="{}: {}\n".format(fr, en))
         self.textbox_wordlist.configure(state="disabled")
+        self.textbox_wordlist.yview_pickplace("end")
 
 
 

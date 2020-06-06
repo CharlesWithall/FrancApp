@@ -20,6 +20,14 @@ class Wordsearch_Window:
         self.window.wm_title("Word Search")
         self.window.grab_set()
 
+        self.valid_translations = [t for t in root.saved_translations if len(t.foreign) <= wsDef.grid_size]
+
+        # Exit if not enough words saved -------------------------------------------------------------------------------
+        if not self.is_valid():
+            self.show_error_window()
+            return
+        # --------------------------------------------------------------------------------------------------------------
+
         self.frame_main = tk.Frame(self.window)
         self.frame_letter_grid = tk.Frame(self.frame_main)
 
@@ -29,7 +37,7 @@ class Wordsearch_Window:
 
         self.num_words_found = 0
 
-        letter_grid, entries = self.generator.generate(wsDef.grid_size, root.saved_translations, wsDef.number_of_words)
+        letter_grid, entries = self.generator.generate(wsDef.grid_size, self.valid_translations, wsDef.number_of_words)
 
         for i, line in enumerate(letter_grid):
             for j, character in enumerate(line):
@@ -48,6 +56,17 @@ class Wordsearch_Window:
         self.drawer = WordSearchDrawer(self, entries)
         self.frame_main.pack()
 
+    def show_error_window(self):
+        message = str.format("There are not enough saved words to generate a wordsearch. Please try again when "
+                             "you have saved at least {0} words.", wsDef.number_of_words)
+        error_label = tk.Label(self.window, text=message)
+        error_label.pack()
+        exit_button = tk.Button(self.window, text="OK", command=self.window.destroy)
+        exit_button.pack()
+
+    def is_valid(self):
+        return len(self.valid_translations) >= wsDef.number_of_words
+
     def set_word_complete(self, word_en, all_complete):
         for label in self.labelarray_wordlist:
             if label.cget("text") == word_en:
@@ -59,8 +78,5 @@ class Wordsearch_Window:
             PlaySound('wordsearch/wordsearch_complete.wav', SND_FILENAME | SND_ASYNC)
             WordsearchGameOverWindow(self.root)
         else:
-            sound_file = str.format('wordsearch/wordsearch_success_{0}.wav', (self.num_words_found - 1 % 5) + 1)
+            sound_file = str.format('wordsearch/wordsearch_success_{0}.wav', ((self.num_words_found - 1) % 5) + 1)
             PlaySound(sound_file, SND_FILENAME | SND_ASYNC)
-
-    # TODO: What if word is longer than the grid?!
-    # TODO: What if there aren't enough words?!
